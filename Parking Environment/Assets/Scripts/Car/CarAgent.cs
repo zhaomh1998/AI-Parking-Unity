@@ -59,11 +59,13 @@ namespace UnityStandardAssets.Vehicles.Car{
                 if(Mathf.Abs(transform.position.x - target.transform.position.x) > envRadiusX || Mathf.Abs(transform.position.z - target.transform.position.z) > envRadiusZ){
                     AddReward(-100f);
                     EndEpisode();
+                    Debug.Log("[-100] EndEpisode: Agent got too far from target");
                 }
             }  
         }
 
         private void Reset(){
+            Debug.Log("Agent reset");
             if(findParkingSpot){
                 isLookingForSpot = true;
                 isPositioning = false;
@@ -82,6 +84,7 @@ namespace UnityStandardAssets.Vehicles.Car{
         }
 
         public override void Initialize(){
+            Debug.Log("Agent initialized");
             carController = GetComponent<CarController>();
             rb = GetComponent<Rigidbody>();
 
@@ -314,6 +317,8 @@ namespace UnityStandardAssets.Vehicles.Car{
                 float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
 
                 // Check if car was able to park and reward it accordingly
+                Debug.Log("ParkedCheck: Angle: " + (angleToTarget < 8f) + " Distance: " + (distanceToTarget < 1f) + " Speed: " + (Mathf.Abs(carController.CurrentSpeed) < 2f));
+                Debug.Log("Angle: " + angleToTarget + " AngleReward: " + totAngleChangeReward + " Distance: " + distanceToTarget + " DistanceReward: " + totDistanceReward + " Direction: " + totDirectionChangeReward  + " Total: " + reward);
                 if(angleToTarget < 2.5f && distanceToTarget < 1f && Mathf.Abs(carController.CurrentSpeed) < 2f){
                     Debug.Log("Car parked!");
                     reward += 100f;
@@ -372,6 +377,8 @@ namespace UnityStandardAssets.Vehicles.Car{
             steps++;
 
             float reward = CalculateReward();
+            if (steps % 100 == 0)
+                Debug.Log("Step " + steps + " reward: " + reward);
             AddReward(reward);
         }
 
@@ -394,6 +401,7 @@ namespace UnityStandardAssets.Vehicles.Car{
 
         void OnTriggerEnter(Collider other)
         {
+            Debug.Log("OnTriggerEnter: " + other.gameObject.tag);
             if(other.gameObject.tag == "Finish"){
                 inTarget = true;
             }
@@ -401,6 +409,7 @@ namespace UnityStandardAssets.Vehicles.Car{
 
         void OnTriggerExit(Collider other)
         {
+            Debug.Log("OnTriggerExit: " + other.gameObject.tag);
             if(other.gameObject.tag == "Finish"){
                 inTarget = false;
             }
@@ -408,9 +417,11 @@ namespace UnityStandardAssets.Vehicles.Car{
 
         void OnCollisionEnter(Collision collision)
         {
+            Debug.Log("OnCollisionEnter: " + collision.gameObject.tag);
             print(collision.gameObject.tag);
             if (collision.gameObject.tag == "Wall")
             {
+                Debug.Log("[-10] EndEpisode: Agent hit wall");
                 AddReward(-10f);
                 EndEpisode();
             }
@@ -418,14 +429,17 @@ namespace UnityStandardAssets.Vehicles.Car{
 
         void OnCollisionStay(Collision collision)
         {
+            Debug.Log("OnCollisionStay: " + collision.gameObject.tag);
             if (collision.gameObject.tag == "Kerb")
             {
+                Debug.Log("[-2] Agent hit kerb");
                 AddReward(-2f);
             }
             else if(collision.gameObject.tag == "Car")
             {
                 
                 float reward = -Mathf.Abs(carController.CurrentSpeed) * 50f - 5f;
+                Debug.Log("[" + reward + "] Agent hit car with speed" + carController.CurrentSpeed);
                 AddReward(reward);
                 EndEpisode();
             }
