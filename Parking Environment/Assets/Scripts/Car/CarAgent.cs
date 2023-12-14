@@ -281,8 +281,9 @@ namespace UnityStandardAssets.Vehicles.Car{
             float totDirectionChangeReward = 0f;
             float totAngleChangeReward = 0f;
             float totDistanceReward = 0f;
+            float angleReward = 0f;
 
-            if(lastPosition != Vector3.zero){
+            // if(lastPosition != Vector3.zero){
                 float distanceToTargetX = Mathf.Abs(transform.position.x - target.transform.position.x);
                 float distanceToTargetZ = Mathf.Abs(transform.position.z - target.transform.position.z);
 
@@ -293,37 +294,42 @@ namespace UnityStandardAssets.Vehicles.Car{
                 float directionChangeZ = lastDistanceToTargetZ - distanceToTargetZ;
 
                 totDirectionChangeReward = (directionChangeX + directionChangeZ) * 10f;
+                // Debug.Log("DirChangeX=" + directionChangeX + " DirChangeZ=" + directionChangeZ + " DirChangeReward=" + totDirectionChangeReward);
                 totDirectionChangeReward = Mathf.Clamp(totDirectionChangeReward, -0.5f, 0.5f);
 
                 float distanceRewardX = (1f - distanceToTargetX/envRadiusX);
                 float distanceRewardZ = (1f - distanceToTargetZ/envRadiusZ);
+                // Debug.Log("XDist=" + distanceToTargetX + "XRad=" + envRadiusX + "XRatio=" + distanceToTargetX/envRadiusX + "XReward=" + distanceRewardX);
+                // Debug.Log("ZDist=" + distanceToTargetZ + "ZRad=" + envRadiusZ + "ZRatio=" + distanceToTargetZ/envRadiusZ + "ZReward=" + distanceRewardZ);
+                totDistanceReward = (distanceRewardX + distanceRewardZ) / 2f - 0.5f;
 
-                totDistanceReward = (distanceRewardX + distanceRewardZ) / 20f;
-
-                reward += totDirectionChangeReward + totDistanceReward;
-            }
-
-            if(inTarget){
                 float angleToTarget = Vector3.Angle(transform.forward, target.transform.forward);
                 // When driving in the spot backwards, the angle to target is 180 degrees
                 if(angleToTarget > 90f){
                     angleToTarget = 180f - angleToTarget;
                 }
-
                 angleToTarget = Mathf.Clamp(angleToTarget, 0f, 90f);
-                float angleReward = (-(1f/45f) * angleToTarget) + 1f;
+                // angleReward = (-(1f/45f) * angleToTarget) + 1f;
+                angleReward = (1 - angleToTarget / 90f) - 0.5f;
+                // Debug.Log("Angle=" + angleToTarget + " AngleReward=" + angleReward);
+                // reward += totDirectionChangeReward + totDistanceReward;
+            // }
 
-                totAngleChangeReward = angleReward + 1f;
+            if(!inTarget) {
+                reward = totDirectionChangeReward + totDistanceReward + angleReward;
+                // Debug.Log("R=" + reward + " Dir: " + totDirectionChangeReward + " Dist: " + totDistanceReward);
+            } else {
+                totAngleChangeReward = angleReward * 2;
 
                 // Reward for minimising the angle to the target
-                reward += totAngleChangeReward;
+                reward = totAngleChangeReward + totDirectionChangeReward + totDistanceReward;
 
                 float distanceToTarget = Vector3.Distance(transform.position, target.transform.position);
-
+                Debug.Log("R=" + reward + " Angle: " + totAngleChangeReward + " Dir: " + totDirectionChangeReward + " Dist: " + totDistanceReward);
                 // Check if car was able to park and reward it accordingly
-                Debug.Log("ParkedCheck: Angle: " + (angleToTarget < 8f) + " Distance: " + (distanceToTarget < 1f) + " Speed: " + (Mathf.Abs(carController.CurrentSpeed) < 2f));
+                Debug.Log("ParkedCheck: Angle: " + (angleToTarget < 3f) + " Distance: " + (distanceToTarget < 1f) + " Speed: " + (Mathf.Abs(carController.CurrentSpeed) < 2f));
                 Debug.Log("Angle: " + angleToTarget + " AngleReward: " + totAngleChangeReward + " Distance: " + distanceToTarget + " DistanceReward: " + totDistanceReward + " Direction: " + totDirectionChangeReward  + " Total: " + reward);
-                if(angleToTarget < 8f && distanceToTarget < 1f && Mathf.Abs(carController.CurrentSpeed) < 2f){
+                if(angleToTarget < 3f && distanceToTarget < 1f && Mathf.Abs(carController.CurrentSpeed) < 2f){
                     Debug.Log("Car parked!");
                     reward += 100f;
                     EndEpisode();
