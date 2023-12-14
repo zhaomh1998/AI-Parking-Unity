@@ -970,8 +970,8 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 750
-  spawnRadiusX: 5
-  spawnRadiusZ: 0.25
+  spawnRadiusX: 10
+  spawnRadiusZ: 0.5
   envRadiusX: 7.5
   envRadiusZ: 7.5
   inTargetMultiplier: 1.5
@@ -981,8 +981,7 @@ MonoBehaviour:
   cameraHeight: 200
   cameraGrayScale: 0
   sensorCompressionType: 1
-  isResetting: 0
-  isLookingForSpot: 1
+  findParkingSpot: 0
 --- !u!114 &7925184598841732249
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1067,7 +1066,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Record: 1
   NumStepsToRecord: 0
-  DemonstrationName: 90deg_RandSpawnTraff
+  DemonstrationName: 90dg_RS_3s
   DemonstrationDirectory: Demos
 --- !u!1 &4966355901550628889
 GameObject:
