@@ -76,7 +76,11 @@ namespace UnityStandardAssets.Vehicles.Car{
             Vector3 spawnPosition = new Vector3(spawnX, startPosition.y, spawnZ);
 
             rb.transform.position = spawnPosition;
-            rb.transform.rotation = startRotation;
+            // Rotate 180 degrees half of the time
+            if(Random.Range(0, 2) == 0)
+                rb.transform.rotation = startRotation * Quaternion.Euler(0, 180, 0);
+            else
+                rb.transform.rotation = startRotation;
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
 
@@ -319,7 +323,7 @@ namespace UnityStandardAssets.Vehicles.Car{
                 // Check if car was able to park and reward it accordingly
                 Debug.Log("ParkedCheck: Angle: " + (angleToTarget < 8f) + " Distance: " + (distanceToTarget < 1f) + " Speed: " + (Mathf.Abs(carController.CurrentSpeed) < 2f));
                 Debug.Log("Angle: " + angleToTarget + " AngleReward: " + totAngleChangeReward + " Distance: " + distanceToTarget + " DistanceReward: " + totDistanceReward + " Direction: " + totDirectionChangeReward  + " Total: " + reward);
-                if(angleToTarget < 2.5f && distanceToTarget < 1f && Mathf.Abs(carController.CurrentSpeed) < 2f){
+                if(angleToTarget < 8f && distanceToTarget < 1f && Mathf.Abs(carController.CurrentSpeed) < 2f){
                     Debug.Log("Car parked!");
                     reward += 100f;
                     EndEpisode();
@@ -417,14 +421,14 @@ namespace UnityStandardAssets.Vehicles.Car{
 
         void OnCollisionEnter(Collision collision)
         {
-            Debug.Log("OnCollisionEnter: " + collision.gameObject.tag);
-            print(collision.gameObject.tag);
-            if (collision.gameObject.tag == "Wall")
-            {
-                Debug.Log("[-10] EndEpisode: Agent hit wall");
-                AddReward(-10f);
-                EndEpisode();
-            }
+            Debug.Log("[-100] EndEpisode: Agent collide with " + collision.gameObject.tag);
+            // print(collision.gameObject.tag);
+            // if (collision.gameObject.tag == "Wall")
+            // {
+            //     Debug.Log("[-10] EndEpisode: Agent hit wall");
+            // }
+            AddReward(-100f);
+            EndEpisode();
         }
 
         void OnCollisionStay(Collision collision)
